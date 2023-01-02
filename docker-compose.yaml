@@ -1,0 +1,57 @@
+version: '3.8'
+name: 'book-store'
+services:
+  mongodb:
+    container_name: database
+    image: mongo:latest
+    env_file:
+       - .env
+    ports:
+     - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - mongodb_data_container:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:${DB_PORT} --quiet
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: 'always'
+
+  backend:
+    container_name: backend
+    build: ./api
+    working_dir: /api
+    volumes:
+      - ./api/src:/api/src
+    ports:
+      - ${API_PORT}:${API_PORT}
+    command: npm run start:dev
+    env_file:
+       - .env
+    depends_on:
+      - mongodb
+    healthcheck:
+      test: ["CMD", "lsof", "-t", "-i:${API_PORT}"]
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    container_name: frontend
+    build: ./web
+    working_dir: /web
+    volumes:
+      - ./web/src:/web/src
+    env_file:
+      - .env
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "lsof", "-t", "-i:${APP_PORT}"]
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mongodb_data_container:
