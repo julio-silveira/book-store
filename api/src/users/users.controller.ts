@@ -8,12 +8,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() UserDto: UserDto): Promise<User> {
-    return await this.usersService.create(UserDto);
+  async create(@Body() userDto: UserDto): Promise<User> {
+    return await this.usersService.create(userDto);
   }
 
   @Post('/login')
-  async login(@Body() UserDto: UserDto): Promise<User> {
-    return await this.usersService.login(UserDto);
+  async login(@Body() userDto: UserDto): Promise<User> {
+    return await this.usersService.login(userDto);
   }
 }
