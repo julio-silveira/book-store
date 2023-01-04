@@ -28,20 +28,11 @@ export class UsersService {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
 
-    const userData = {
+    const userDataToSave = {
       username,
       password: hash,
     };
-    const createdUser = await this.userModel.create(userData);
+    const createdUser = await this.userModel.create(userDataToSave);
     return createdUser;
-  }
-
-  async login({ username, password }: UserDto): Promise<User> {
-    const user = await this.findOne(username);
-    if (!user) throw new BadRequestException('Usuário não encontrado');
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      throw new HttpException('Senha incorreta', HttpStatus.UNAUTHORIZED);
-    return user;
   }
 }
