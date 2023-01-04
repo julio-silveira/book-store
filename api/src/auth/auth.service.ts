@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserDto } from 'src/users/dto/user.dto';
 import { User } from 'src/users/schemas/user.schema';
@@ -17,7 +12,8 @@ export class AuthService {
     const user = await this.userService.findOne(username);
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (user && isPasswordMatch) {
-      const { password, ...result } = user;
+      const { ...result } = user;
+      Logger.log(result);
       return result;
     } else return null;
   }
