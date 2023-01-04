@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
@@ -16,23 +11,36 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
+  private async checkUsernameDisponiblity(username: string) {
+    const user = await this.findOne(username);
+    if (user !== null) return false;
+    else return true;
+  }
+
+  private async generatePasswordHash(password: string) {
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  }
+
   async findOne(username: string): Promise<User | null> {
     return await this.userModel.findOne({ username }).exec();
   }
 
-  async create({ username, password }: UserDto): Promise<User> {
-    const user = await this.findOne(username);
-    if (user !== null)
-      throw new BadRequestException('Já existe um usuário com este nome');
+  async create({ username, password }: UserDto) {
+    const isUsernameDisponible = await this.checkUsernameDisponiblity(username);
+    if (!isUsernameDisponible)
+      throw new BadRequestException(
+        'Já cadastrado existe um usuário com este nome',
+      );
 
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(password, salt);
+    const passwordHash = await this.generatePasswordHash(password);
 
     const userDataToSave = {
       username,
-      password: hash,
+      password: passwordHash,
     };
     const createdUser = await this.userModel.create(userDataToSave);
-    return createdUser;
+    return { message: `${createdUser.username} foi cadastrado com sucesso` };
   }
 }
