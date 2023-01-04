@@ -13,29 +13,33 @@ import { User, UserDocument } from './schemas/user.schema';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private readonly UserModel: Model<UserDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async create(userDto: UserDto): Promise<User> {
-    const user = await this.UserModel.findOne({ name: userDto.name }).exec();
+  async findOne(username: string): Promise<User | null> {
+    return await this.userModel.findOne({ username }).exec();
+  }
+
+  async create({ username, password }: UserDto): Promise<User> {
+    const user = await this.findOne(username);
     if (user !== null)
       throw new BadRequestException('Já existe um usuário com este nome');
 
     const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(userDto.password, salt);
+    const hash = await bcrypt.hash(password, salt);
 
     const userData = {
-      name: userDto.name,
+      username,
       password: hash,
     };
-    const createdUser = await this.UserModel.create(userData);
+    const createdUser = await this.userModel.create(userData);
     return createdUser;
   }
 
-  async login(userDto: UserDto): Promise<User> {
-    const user = await this.UserModel.findOne({ name: userDto.name }).exec();
+  async login({ username, password }: UserDto): Promise<User> {
+    const user = await this.findOne(username);
     if (!user) throw new BadRequestException('Usuário não encontrado');
-    const isMatch = await bcrypt.compare(userDto.password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       throw new HttpException('Senha incorreta', HttpStatus.UNAUTHORIZED);
     return user;
