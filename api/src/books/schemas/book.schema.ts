@@ -15,7 +15,7 @@ export class Book {
   genre: string;
 
   @Prop()
-  imageUrl: string;
+  pages: number;
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);

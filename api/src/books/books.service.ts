@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Book, BookDocument } from './schemas/book.schema';
 
 @Injectable()
 export class BooksService {
-  create(createBookDto: CreateBookDto) {
-    return 'This action adds a new book';
+  constructor(
+    @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
+  ) {}
+
+  async create(createBookDto: CreateBookDto) {
+    const newBook = await this.bookModel.create(createBookDto);
+    return newBook;
   }
 
-  findAll() {
-    return `This action returns all books`;
+  async findAll() {
+    return await this.bookModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} book`;
+  async findOne(id: ObjectId) {
+    return await this.bookModel.findById({ _id: id });
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
+  async update(id: ObjectId, updateBookDto: UpdateBookDto) {
+    const patchedBook = await this.bookModel.updateOne(
+      { _id: id },
+      updateBookDto,
+    );
+    Logger.log(patchedBook);
+    return patchedBook;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} book`;
+  async remove(id: ObjectId) {
+    return await this.bookModel.remove({ _id: id });
   }
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUrl, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 export class CreateBookDto {
   @IsNotEmpty()
   @Length(3, 200)
@@ -12,6 +12,6 @@ export class CreateBookDto {
   @Length(3, 30)
   genre: string;
 
-  @IsUrl()
-  imageUrl: string;
+  @IsOptional()
+  pages: number;
 }
