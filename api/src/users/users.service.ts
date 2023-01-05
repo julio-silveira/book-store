@@ -42,8 +42,6 @@ export class UsersService {
       username,
       password: passwordHash,
     };
-    console.log(userDataToSave.password);
-
     const newUser = await this.userModel.create(userDataToSave);
     return { message: `${newUser.username} foi cadastrado com sucesso` };
   }

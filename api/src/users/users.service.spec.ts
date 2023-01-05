@@ -1,9 +1,9 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
+import { Model, Query } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
-import { User } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import { BadRequestException } from '@nestjs/common';
 
 const mockUser = {
