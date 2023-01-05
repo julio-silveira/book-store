@@ -13,11 +13,12 @@ export class UsersService {
 
   private async checkUsernameDisponiblity(username: string) {
     const user = await this.findOne(username);
+
     if (user !== null) return false;
     else return true;
   }
 
-  private async generatePasswordHash(password: string) {
+  public async generatePasswordHash(password: string) {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
     return hash;
@@ -28,8 +29,9 @@ export class UsersService {
   }
 
   async create({ username, password }: UserDto) {
-    const isUsernameDisponible = await this.checkUsernameDisponiblity(username);
-    if (!isUsernameDisponible)
+    const isUsernameAvaliable = await this.checkUsernameDisponiblity(username);
+
+    if (!isUsernameAvaliable)
       throw new BadRequestException(
         'Já cadastrado existe um usuário com este nome',
       );
@@ -40,7 +42,9 @@ export class UsersService {
       username,
       password: passwordHash,
     };
-    const createdUser = await this.userModel.create(userDataToSave);
-    return { message: `${createdUser.username} foi cadastrado com sucesso` };
+    console.log(userDataToSave.password);
+
+    const newUser = await this.userModel.create(userDataToSave);
+    return { message: `${newUser.username} foi cadastrado com sucesso` };
   }
 }
